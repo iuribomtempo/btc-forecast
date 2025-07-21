@@ -1,0 +1,32 @@
+# Virtual environment
+venv/
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+
+# Ignore large or temporary data files
+*.xlsx
+*.h5
+*.pkl
+
+# Keep CSV and Parquet files (used as project databases)
+# (Do not add *.csv or *.parquet here!)
+
+# Jupyter and Spyder project files
+.ipynb_checkpoints/
+.spyderproject
+.spyproject
+
+# IDE and editor configurations
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
