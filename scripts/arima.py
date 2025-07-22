@@ -323,15 +323,20 @@ def reconstruct_prices_from_log_close(forecast_df, last_price):
 
 
 # Computes and returns MAPE, RMSE, and R² for evaluating prediction accuracy.
-def evaluate_model(y_true, y_pred):
+def evaluate_model(y_true, y_pred, column_name):
     """
     Computes MAPE, RMSE, and R² for model evaluation.
+    
     """
     mape = mean_absolute_percentage_error(y_true, y_pred) * 100
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     r2 = r2_score(y_true, y_pred)
-
-    print(f"\n📊 Model Evaluation:")
+    
+    # Create a pd Series with the rsults
+    metrics_series = pd.Series([mape, rmse, r2], index=["MAPE", "RMSE", "R²"], name=column_name)
+    results_df[column_name] = metrics_series
+    
+    print("\n📊 Model Evaluation:")
     print(f"MAPE: {mape:.2f}%")
     print(f"RMSE: {rmse:.2f}")
     print(f"R²: {r2:.4f}")
@@ -420,6 +425,7 @@ def validate_jarque_bera(residuals):
 # --- Step 1: Load and prepare dataset ---
 df = load_and_prepare("data/raw/btcusdt_1d.csv")
 
+results_df = pd.DataFrame(index=["MAPE", "RMSE", "R²"])
 
 #%% --- Step 2: Stationarity test on log(close) ---
 adf_test(df['log_close'], 'log(price)')
@@ -457,12 +463,13 @@ with open("results/ARIMA/arima_model_summary.txt", "w") as f:
 
 #%% --- Step 8: Static forecast (single fit on full test set) ---
 forecast_static_model_df = static_arima_forecast(model, df_test,
-                                                 n_periods=30)
+                                                 n_periods=100)
 
 
 #%% --- Step 9: Evaluate static forecast (MAPE, RMSE, R²) ---
 evaluate_model(forecast_static_model_df['real_price'], 
-               forecast_static_model_df['predicted_price'])
+               forecast_static_model_df['predicted_price'],
+               column_name='ARIMA Static')
 
 
 #%% --- Step 10: Plot forecast vs actual (static model) ---
