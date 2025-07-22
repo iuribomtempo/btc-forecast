@@ -263,7 +263,7 @@ def rolling_arima_forecast(df_train, df_test, column='log_close', order=None):
             lower_bounds.append(conf_int[0])
             upper_bounds.append(conf_int[1])
             reals.append(df_test.loc[t, column])
-            #residuals.append(residual)
+            residuals.append(residual)
            
             # Update the history with the real value of t day
             history = pd.concat([history, pd.Series(df_test.loc[t, column],
@@ -319,7 +319,10 @@ def reconstruct_prices_from_log_close(forecast_df, last_price):
     forecast_df['lower_bound'] = lower_prices
     forecast_df['upper_bound'] = upper_prices
     forecast_df['residual'] = forecast_df['real_price'] - forecast_df['predicted_price']
-
+    
+    # Remove log columns
+    forecast_df.drop(columns=['log_real', 'log_predicted'], inplace=True)
+    
     return forecast_df
 
 
@@ -335,7 +338,7 @@ def evaluate_model(y_true, y_pred, column_name):
     
     # Create a pd Series with the rsults
     metrics_series = pd.Series([mape, rmse, r2], index=["MAPE", "RMSE", "R²"], name=column_name)
-    results_df[column_name] = metrics_series
+    metrics_df[column_name] = metrics_series
     
     print("\n📊 Model Evaluation:")
     print(f"MAPE: {mape:.2f}%")
@@ -381,18 +384,26 @@ def plot_forecast_from_df(reconstructed_df, title='', save_path=None):
     
     plt.show()
 
-
 # Applies Ljung-Box test to verify residuals are white noise (i.e., no autocorrelation).
-def validate_ljung_box(residuals, lags=10):
+def validate_ljung_box(residuals, lags=10, label=None):
     """
     Runs Ljung-Box test to verify if residuals are white noise
-    (no autocorrelation).
-    """
-    print(f"🧪 Ljung-Box Test (lags={lags}):")
-    ljung = acorr_ljungbox(residuals, lags=[lags], return_df=True)
-    print(ljung, "\n")
+    (no autocorrelation). Appends result to diagnostics_df.
 
+    Parameters:
+        residuals (array-like): Model residuals (errors).
+        lags (int): Number of lags to include in the test.
+        label (str): Label for the model to appear in diagnostics_df.
+    """
+    ljung = acorr_ljungbox(residuals, lags=[lags], return_df=True)
+    stat = ljung['lb_stat'].values[0]
     p_value = ljung['lb_pvalue'].values[0]
+    conclusion = "White noise" if p_value > 0.05 else "Autocorrelated"
+
+    diagnostics_df.loc[len(diagnostics_df)] = [label, "Ljung-Box", stat, p_value, conclusion]
+
+    print(f"\n🧪 Ljung-Box Test ({label}, lags={lags}):")
+    print(ljung, "\n")
 
     if p_value > 0.05:
         print(f"✅ p-value = {p_value:.4f} > 0.05 → Fail to reject H₀.")
@@ -403,14 +414,21 @@ def validate_ljung_box(residuals, lags=10):
 
 
 # Applies Jarque-Bera test to assess normality of model residuals.
-def validate_jarque_bera(residuals):
+def validate_jarque_bera(residuals, label=None):
     """
     Applies the Jarque-Bera test to determine if residuals follow a normal
-    distribution.
+    distribution. Appends result to diagnostics_df.
+
+    Parameters:
+        residuals (array-like): Model residuals (errors).
+        label (str): Label for the model to appear in diagnostics_df.
     """
     jb_stat, p_value = jarque_bera(residuals)
+    conclusion = "Normal" if p_value > 0.05 else "Non-normal"
 
-    print("🧪 Jarque-Bera Test (normality of residuals):")
+    diagnostics_df.loc[len(diagnostics_df)] = [label, "Jarque-Bera", jb_stat, p_value, conclusion]
+
+    print(f"\n🧪 Jarque-Bera Test ({label}):")
     print(f"JB Statistic: {jb_stat:.4f}")
     print(f"p-value: {p_value:.4f}")
 
@@ -426,7 +444,14 @@ def validate_jarque_bera(residuals):
 # --- Step 1: Load and prepare dataset ---
 df = load_and_prepare("data/raw/btcusdt_1d.csv")
 
-results_df = pd.DataFrame(index=["MAPE", "RMSE", "R²"])
+# Df for Error metrics
+metrics_df = pd.DataFrame(index=["MAPE", "RMSE", "R²"])
+
+# Df for Ljung-Box and Jarque-Bera tests
+diagnostics_df = pd.DataFrame(
+    columns=['Model', 'Test', 'Statistic', 'p-value', 'Conclusion']
+    )
+
 
 #%% --- Step 2: Stationarity test on log(close) ---
 adf_df = df.copy()
@@ -474,26 +499,34 @@ forecast_static_model_df = static_arima_forecast(model, df_test,
 evaluate_model(
     y_true=df_train['close'].values,
     y_pred=np.exp(model.predict_in_sample()),
-    column_name='ARIMA Static Train'
+    column_name='ARIMA Static - Train'
 )
 
 # Evaluate performance on test set (true forecast evaluation)
 evaluate_model(
     y_true=forecast_static_model_df['real_price'],
     y_pred=forecast_static_model_df['predicted_price'],
-    column_name='ARIMA Static Test'
+    column_name='ARIMA Static - Test'
 )
+
 #%% --- Step 10: Plot forecast vs actual (static model) ---
 plot_forecast_from_df(forecast_static_model_df,
                       title='ARIMA Static Forecast - BTC/USDT Price with Confidence Interval',
                       save_path='Results/ARIMA/arima_static_price.png')
 
 #%% --- Step 11: Diagnostic tests on residuals (static model) ---
+
+# Extract residuals from the fitted ARIMA model (on training data)
 residuals = model.arima_res_.resid
-validate_ljung_box(residuals)
-validate_jarque_bera(residuals)
+
+# Apply Ljung-Box test to check for autocorrelation in residuals
+validate_ljung_box(residuals, lags=10, label='ARIMA Static (train)')
+
+# Apply Jarque-Bera test to check for normality of residuals
+validate_jarque_bera(residuals, label='ARIMA Static (train)')
 
 #%%#####################--- ARIMA Rolling Window ---###########################
+###############################################################################
 
 #--- Step 12: Rolling forecast (refitting at each step) ---
 forecast_rolling_model_df = rolling_arima_forecast(df_train, df_test,
@@ -502,14 +535,14 @@ forecast_rolling_model_df = rolling_arima_forecast(df_train, df_test,
 
 #%% --- Step 13: Reconstruct price from log-forecast (rolling) ---
 last_price = df_train['close'].iloc[-1]
-forecast_rolling_model_df = reconstruct_prices_from_log_close(forecast_rolling_model_df, last_price)
+forecast_rolling_model_df = reconstruct_prices_from_log_close(
+    forecast_rolling_model_df, last_price)
 
 
 #%% --- Step 14: Evaluate rolling forecast ---
 evaluate_model(forecast_rolling_model_df['real_price'],
                forecast_rolling_model_df['predicted_price'],
                column_name='ARIMA Rolling - Test')
-
 
 
 #%% --- Step 15: Plot forecast vs actual (rolling model) ---
@@ -520,21 +553,29 @@ plot_forecast_from_df(forecast_rolling_model_df,
                       save_path='Results/ARIMA/arima_rolling_price.png')
 
 # Plot only the last 100 forecasted values for a closer view 
-plot_forecast_from_df(forecast_rolling_model_df[-100:],
+plot_forecast_from_df(forecast_rolling_model_df[-50:],
                       title='ARIMA Rolling Forecast - BTC/USDT Price with Confidence Interval',
-                      save_path='Results/ARIMA/arima_rolling_price_100_last.png')
+                      save_path='Results/ARIMA/arima_rolling_price_50_last.png')
 
 #%% --- Step 16: Diagnostic tests on residuals (Rolling Model) ---
 
-#rolling_residuals = forecast_rolling_model_df['residual']
-validate_ljung_box(forecast_rolling_model_df['residual'])
-validate_jarque_bera(forecast_rolling_model_df['residual'])
+validate_ljung_box(forecast_rolling_model_df['residual'],
+                   lags=10, label='Arima Rolling (Test)')
+
+validate_jarque_bera(forecast_rolling_model_df['residual'],
+                     label='Arima Rolling (Test)')
 
 
-#%% --- Step 17: Export rolling forecast to CSV ---
+#%% --- Step 17: Export data to CSV ---
+
+# Export the Static ARIMA  Results
+forecast_static_model_df.to_csv('results/ARIMA/arima_static_forecast.csv')
 
 # Export the Arima rolling Window Results
 forecast_rolling_model_df.to_csv('results/ARIMA/arima_rolling_forecast.csv')
 
-# Export the Static ARIMA  Results
-forecast_static_model_df
+# Export the metrics comparsion
+metrics_df.to_csv('results/ARIMA/metrics.csv')
+
+# Export Ljung-Box and Jarque-Bera statistics
+diagnostics_df.to_csv('results/ARIMA/stats_diagnostics.csv')
