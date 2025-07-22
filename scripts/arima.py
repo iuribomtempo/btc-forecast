@@ -263,7 +263,7 @@ def rolling_arima_forecast(df_train, df_test, column='log_close', order=None):
             lower_bounds.append(conf_int[0])
             upper_bounds.append(conf_int[1])
             reals.append(df_test.loc[t, column])
-            residuals.append(residual)
+            #residuals.append(residual)
            
             # Update the history with the real value of t day
             history = pd.concat([history, pd.Series(df_test.loc[t, column],
@@ -280,8 +280,8 @@ def rolling_arima_forecast(df_train, df_test, column='log_close', order=None):
             reals.append(df_test.loc[t, column])
 
     forecast_df = pd.DataFrame({
-        'real': reals,
-        'predicted': preds,
+        'log_real': reals,
+        'log_predicted': preds,
         'lower_bound': lower_bounds,
         'upper_bound': upper_bounds,
         'residual': residuals
@@ -309,8 +309,8 @@ def reconstruct_prices_from_log_close(forecast_df, last_price):
     upper_prices = []
 
     for i in range(len(forecast_df)):
-        real_prices.append(np.exp(forecast_df['real'].iloc[i]))
-        predicted_prices.append(np.exp(forecast_df['predicted'].iloc[i]))
+        real_prices.append(np.exp(forecast_df['log_real'].iloc[i]))
+        predicted_prices.append(np.exp(forecast_df['log_predicted'].iloc[i]))
         lower_prices.append(np.exp(forecast_df['lower_bound'].iloc[i]))
         upper_prices.append(np.exp(forecast_df['upper_bound'].iloc[i]))
 
@@ -318,6 +318,7 @@ def reconstruct_prices_from_log_close(forecast_df, last_price):
     forecast_df['predicted_price'] = predicted_prices
     forecast_df['lower_bound'] = lower_prices
     forecast_df['upper_bound'] = upper_prices
+    forecast_df['residual'] = forecast_df['real_price'] - forecast_df['predicted_price']
 
     return forecast_df
 
@@ -428,22 +429,24 @@ df = load_and_prepare("data/raw/btcusdt_1d.csv")
 results_df = pd.DataFrame(index=["MAPE", "RMSE", "R²"])
 
 #%% --- Step 2: Stationarity test on log(close) ---
-adf_test(df['log_close'], 'log(price)')
+adf_df = df.copy()
+
+adf_test(adf_df['log_close'], 'log(price)')
 
 
 #%% --- Step 3: Plot ACF and PACF (no differencing) ---
-plot_acf_pacf(df['log_close'], lags=30,
+plot_acf_pacf(adf_df['log_close'], lags=30,
               filename='results/ARIMA/acf_pacf_n_0.png')
 
 
 #%% --- Step 4: Apply first-order differencing (optional with auto_arima) ---
-df['log_diff'] = df['log_close'].diff()
-df.dropna(inplace=True)
+adf_df['log_diff'] = adf_df['log_close'].diff()
+adf_df.dropna(inplace=True)
 
 
 #%% --- Step 5: Re-test stationarity and plot ACF/PACF (after differencing) ---
-adf_test(series=df['log_diff'], name='log(price) d=1')
-plot_acf_pacf(series=df['log_diff'], lags=30,
+adf_test(series=adf_df['log_diff'], name='log(price) d=1')
+plot_acf_pacf(series=adf_df['log_diff'], lags=30,
               filename='results/ARIMA/acf_pacf_n_1.png')
 
 
@@ -465,13 +468,21 @@ with open("results/ARIMA/arima_model_summary.txt", "w") as f:
 forecast_static_model_df = static_arima_forecast(model, df_test,
                                                  n_periods=100)
 
-
 #%% --- Step 9: Evaluate static forecast (MAPE, RMSE, R²) ---
-evaluate_model(forecast_static_model_df['real_price'], 
-               forecast_static_model_df['predicted_price'],
-               column_name='ARIMA Static')
 
+# Evaluate performance on training set (for diagnostic purposes only)
+evaluate_model(
+    y_true=df_train['close'].values,
+    y_pred=np.exp(model.predict_in_sample()),
+    column_name='ARIMA Static Train'
+)
 
+# Evaluate performance on test set (true forecast evaluation)
+evaluate_model(
+    y_true=forecast_static_model_df['real_price'],
+    y_pred=forecast_static_model_df['predicted_price'],
+    column_name='ARIMA Static Test'
+)
 #%% --- Step 10: Plot forecast vs actual (static model) ---
 plot_forecast_from_df(forecast_static_model_df,
                       title='ARIMA Static Forecast - BTC/USDT Price with Confidence Interval',
@@ -491,49 +502,39 @@ forecast_rolling_model_df = rolling_arima_forecast(df_train, df_test,
 
 #%% --- Step 13: Reconstruct price from log-forecast (rolling) ---
 last_price = df_train['close'].iloc[-1]
-reconstructed_df = reconstruct_prices_from_log_close(forecast_rolling_model_df,
-                                                     last_price)
+forecast_rolling_model_df = reconstruct_prices_from_log_close(forecast_rolling_model_df, last_price)
 
 
 #%% --- Step 14: Evaluate rolling forecast ---
-evaluate_model(reconstructed_df['real_price'],
-               reconstructed_df['predicted_price'])
+evaluate_model(forecast_rolling_model_df['real_price'],
+               forecast_rolling_model_df['predicted_price'],
+               column_name='ARIMA Rolling - Test')
+
 
 
 #%% --- Step 15: Plot forecast vs actual (rolling model) ---
-plot_forecast_from_df(reconstructed_df,
+
+# Plot the full rolling forecast vs actual (rolling model)
+plot_forecast_from_df(forecast_rolling_model_df,
                       title='ARIMA Rolling Forecast - BTC/USDT Price with Confidence Interval',
-                      save_path='Results/ARIMA/arima_rolling_price.svg')
+                      save_path='Results/ARIMA/arima_rolling_price.png')
+
+# Plot only the last 100 forecasted values for a closer view 
+plot_forecast_from_df(forecast_rolling_model_df[-100:],
+                      title='ARIMA Rolling Forecast - BTC/USDT Price with Confidence Interval',
+                      save_path='Results/ARIMA/arima_rolling_price_100_last.png')
+
+#%% --- Step 16: Diagnostic tests on residuals (Rolling Model) ---
+
+#rolling_residuals = forecast_rolling_model_df['residual']
+validate_ljung_box(forecast_rolling_model_df['residual'])
+validate_jarque_bera(forecast_rolling_model_df['residual'])
 
 
-#%% --- Step 16: Compare static vs rolling metrics ---
-mape_static, rmse_static, r2_static = evaluate_model(
-    forecast_static_model_df['real_price'],
-    forecast_static_model_df['predicted_price']
-)
+#%% --- Step 17: Export rolling forecast to CSV ---
 
-mape_rolling, rmse_rolling, r2_rolling = evaluate_model(
-    reconstructed_df['real_price'],
-    reconstructed_df['predicted_price']
-)
+# Export the Arima rolling Window Results
+forecast_rolling_model_df.to_csv('results/ARIMA/arima_rolling_forecast.csv')
 
-comparison_df = pd.DataFrame({
-    'Modelo': ['Estático (sem re-treinamento)', 'Rolling (com re-treinamento)'],
-    'MAPE (%)': [round(mape_static, 2), round(mape_rolling, 2)],
-    'RMSE': [round(rmse_static, 2), round(rmse_rolling, 2)],
-    'R²': [round(r2_static, 4), round(r2_rolling, 4)]
-})
-
-
-# Display performance comparison
-display(comparison_df)
-
-#%% --- Step 17: Diagnostic tests on residuals (Rolling Model) ---
-
-rolling_residuals = forecast_rolling_model_df['residual']
-validate_ljung_box(rolling_residuals)
-validate_jarque_bera(rolling_residuals)
-
-
-#%% --- Step 18: Export rolling forecast to CSV ---
-#reconstructed_df.to_csv('Results/ARIMA/ARIMA_rolling.csv')
+# Export the Static ARIMA  Results
+forecast_static_model_df
