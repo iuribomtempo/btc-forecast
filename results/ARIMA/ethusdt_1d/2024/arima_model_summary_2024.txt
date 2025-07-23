@@ -1,0 +1,22 @@
+                               SARIMAX Results                                
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  292
+Model:               SARIMAX(0, 1, 0)   Log Likelihood                 580.696
+Date:                Wed, 23 Jul 2025   AIC                          -1159.391
+Time:                        14:25:41   BIC                          -1155.718
+Sample:                    01-01-2024   HQIC                         -1157.920
+                         - 10-18-2024                                         
+Covariance Type:                  opg                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+sigma2         0.0011   5.17e-05     20.927      0.000       0.001       0.001
+===================================================================================
+Ljung-Box (L1) (Q):                   0.11   Jarque-Bera (JB):               203.87
+Prob(Q):                              0.74   Prob(JB):                         0.00
+Heteroskedasticity (H):               1.08   Skew:                             0.46
+Prob(H) (two-sided):                  0.71   Kurtosis:                         7.00
+===================================================================================
+
+Warnings:
+[1] Covariance matrix calculated using the outer product of gradients (complex-step).

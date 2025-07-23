@@ -1,0 +1,5 @@
+,Model,Test,Statistic,p-value,Conclusion
+0,ARIMA Static (train),Ljung-Box,0.012196954031091565,0.9999999999999301,White noise
+1,ARIMA Static (train),Jarque-Bera,1004069.1929868401,0.0,Non-normal
+2,ARIMA Rolling (Test),Ljung-Box,2.5324325928664684,0.9903946228574871,White noise
+3,ARIMA Rolling (Test),Jarque-Bera,292.76443464238207,2.673072688601951e-64,Non-normal

@@ -29,7 +29,7 @@ matplotlib==3.10.3
 matplotlib-inline==0.1.7
 multidict==6.6.3
 nest-asyncio==1.6.0
-numpy==2.3.1
+numpy==1.26.4
 packaging==25.0
 pandas==2.3.1
 parso==0.8.4
@@ -54,6 +54,7 @@ regex==2024.11.6
 requests==2.32.4
 scikit-learn==1.7.1
 scipy==1.16.0
+seaborn==0.13.2
 six==1.17.0
 spyder-kernels==3.0.5
 stack-data==0.6.3

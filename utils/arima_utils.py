@@ -264,12 +264,12 @@ def rolling_arima_forecast(df_train, df_test, column='log_close', order=None):
             print(f"\n📅 Date: {t}")
             print(f"🔮 Predicted (log): {mean:.5f}")
             print(f"✅ Real (log):      {real_value:.5f}")
-            print(f"📉 95% CI:          [{conf_int[0]:.5f}, {conf_int[1]:.5f}]")
+            print(f"📉 95% CI:          [{conf_int.iloc[0]:.5f}, {conf_int.iloc[1]:.5f}]")
             ############################################################    
 
             preds.append(mean)
-            lower_bounds.append(conf_int[0])
-            upper_bounds.append(conf_int[1])
+            lower_bounds.append(conf_int.iloc[0])
+            upper_bounds.append(conf_int.iloc[1])
             reals.append(df_test.loc[t, column])
             residuals.append(residual)
            
@@ -335,7 +335,7 @@ def reconstruct_prices_from_log_close(forecast_df, last_price):
 
 
 # Computes and returns MAPE, RMSE, and R² for evaluating prediction accuracy.
-def evaluate_model(y_true, y_pred, column_name):
+def evaluate_model(y_true, y_pred, column_name, metrics_df):
     """
     Computes MAPE, RMSE, and R² for model evaluation.
     
@@ -393,7 +393,7 @@ def plot_forecast_from_df(reconstructed_df, title='', save_path=None):
     plt.show()
 
 # Applies Ljung-Box test to verify residuals are white noise (i.e., no autocorrelation).
-def validate_ljung_box(residuals, lags=10, label=None):
+def validate_ljung_box(residuals, lags=10, label=None, diagnostics_df=None):
     """
     Runs Ljung-Box test to verify if residuals are white noise
     (no autocorrelation). Appends result to diagnostics_df.
@@ -422,7 +422,7 @@ def validate_ljung_box(residuals, lags=10, label=None):
 
 
 # Applies Jarque-Bera test to assess normality of model residuals.
-def validate_jarque_bera(residuals, label=None):
+def validate_jarque_bera(residuals, label=None, diagnostics_df=None):
     """
     Applies the Jarque-Bera test to determine if residuals follow a normal
     distribution. Appends result to diagnostics_df.

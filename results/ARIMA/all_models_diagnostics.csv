@@ -1,0 +1,73 @@
+dataset,Model,Test,Statistic,p-value,Conclusion
+btcusdt_1d_2017,ARIMA Static (train),Ljung-Box,0.011162272124716344,0.999999999999955,White noise
+btcusdt_1d_2017,ARIMA Static (train),Jarque-Bera,50295.536240388705,0.0,Non-normal
+btcusdt_1d_2017,ARIMA Rolling (Test),Ljung-Box,9.719732243321502,0.4654166925952793,White noise
+btcusdt_1d_2017,ARIMA Rolling (Test),Jarque-Bera,0.7720834205830602,0.679742172844828,Normal
+btcusdt_1d_2018,ARIMA Static (train),Ljung-Box,0.15599584070277167,0.9999999774559568,White noise
+btcusdt_1d_2018,ARIMA Static (train),Jarque-Bera,990508.0043616879,0.0,Non-normal
+btcusdt_1d_2018,ARIMA Rolling (Test),Ljung-Box,10.77171709161136,0.3755778262337778,White noise
+btcusdt_1d_2018,ARIMA Rolling (Test),Jarque-Bera,38.959178171640794,3.468342281466343e-09,Non-normal
+btcusdt_1d_2019,ARIMA Static (train),Ljung-Box,0.07257191168314836,0.99999999949139,White noise
+btcusdt_1d_2019,ARIMA Static (train),Jarque-Bera,993475.3562433341,0.0,Non-normal
+btcusdt_1d_2019,ARIMA Rolling (Test),Ljung-Box,5.9527603214554645,0.8192163713469441,White noise
+btcusdt_1d_2019,ARIMA Rolling (Test),Jarque-Bera,145.9359164072155,2.043705889276168e-32,Non-normal
+btcusdt_1d_2020,ARIMA Static (train),Ljung-Box,0.04925595157975974,0.9999999999260306,White noise
+btcusdt_1d_2020,ARIMA Static (train),Jarque-Bera,989076.8044277438,0.0,Non-normal
+btcusdt_1d_2020,ARIMA Rolling (Test),Ljung-Box,3.67367806954992,0.9608697008138583,White noise
+btcusdt_1d_2020,ARIMA Rolling (Test),Jarque-Bera,2.906246549173447,0.2338388035823129,Normal
+btcusdt_1d_2021,ARIMA Static (train),Ljung-Box,9.793804031685514,0.4587661527610577,White noise
+btcusdt_1d_2021,ARIMA Static (train),Jarque-Bera,2838.5599129256457,0.0,Non-normal
+btcusdt_1d_2021,ARIMA Rolling (Test),Ljung-Box,11.337827324100425,0.331810858630766,White noise
+btcusdt_1d_2021,ARIMA Rolling (Test),Jarque-Bera,2.0473407642600066,0.35927384489386677,Normal
+btcusdt_1d_2022,ARIMA Static (train),Ljung-Box,0.012196954031091565,0.9999999999999301,White noise
+btcusdt_1d_2022,ARIMA Static (train),Jarque-Bera,1004069.1929868401,0.0,Non-normal
+btcusdt_1d_2022,ARIMA Rolling (Test),Ljung-Box,2.5324325928664684,0.9903946228574871,White noise
+btcusdt_1d_2022,ARIMA Rolling (Test),Jarque-Bera,292.76443464238207,2.673072688601951e-64,Non-normal
+btcusdt_1d_2023,ARIMA Static (train),Ljung-Box,0.00308173430091112,0.9999999999999999,White noise
+btcusdt_1d_2023,ARIMA Static (train),Jarque-Bera,1009854.278928669,0.0,Non-normal
+btcusdt_1d_2023,ARIMA Rolling (Test),Ljung-Box,5.874849188169099,0.8256659404210656,White noise
+btcusdt_1d_2023,ARIMA Rolling (Test),Jarque-Bera,9.230197400056516,0.009901206109415741,Non-normal
+btcusdt_1d_2024,ARIMA Static (train),Ljung-Box,0.02169685249648683,0.9999999999987591,White noise
+btcusdt_1d_2024,ARIMA Static (train),Jarque-Bera,1008242.3713628353,0.0,Non-normal
+btcusdt_1d_2024,ARIMA Rolling (Test),Ljung-Box,12.883458104260265,0.23026101246307806,White noise
+btcusdt_1d_2024,ARIMA Rolling (Test),Jarque-Bera,8.694917744431933,0.012939652147628366,Non-normal
+btcusdt_1d_2025,ARIMA Static (train),Ljung-Box,0.00905710986384058,0.9999999999999842,White noise
+btcusdt_1d_2025,ARIMA Static (train),Jarque-Bera,163857.13614096484,0.0,Non-normal
+btcusdt_1d_2025,ARIMA Rolling (Test),Ljung-Box,5.550987061198139,0.8514724941129853,White noise
+btcusdt_1d_2025,ARIMA Rolling (Test),Jarque-Bera,4.1900886241970525,0.12306479027403153,Normal
+ethusdt_1d_2017,ARIMA Static (train),Ljung-Box,0.04116672499826921,0.9999999999697341,White noise
+ethusdt_1d_2017,ARIMA Static (train),Jarque-Bera,48914.19167838407,0.0,Non-normal
+ethusdt_1d_2017,ARIMA Rolling (Test),Ljung-Box,10.908578227184131,0.364684868113034,White noise
+ethusdt_1d_2017,ARIMA Rolling (Test),Jarque-Bera,7.333484017684814,0.02555960741752784,Non-normal
+ethusdt_1d_2018,ARIMA Static (train),Ljung-Box,0.47167260146143664,0.9999950023847434,White noise
+ethusdt_1d_2018,ARIMA Static (train),Jarque-Bera,930039.1780933047,0.0,Non-normal
+ethusdt_1d_2018,ARIMA Rolling (Test),Ljung-Box,12.437144608405111,0.25686443791193325,White noise
+ethusdt_1d_2018,ARIMA Rolling (Test),Jarque-Bera,16.350926044431322,0.00028147609833431786,Non-normal
+ethusdt_1d_2019,ARIMA Static (train),Ljung-Box,0.5081109948373504,0.9999928583586629,White noise
+ethusdt_1d_2019,ARIMA Static (train),Jarque-Bera,928534.9518418566,0.0,Non-normal
+ethusdt_1d_2019,ARIMA Rolling (Test),Ljung-Box,7.66668285026422,0.6613580450360532,White noise
+ethusdt_1d_2019,ARIMA Rolling (Test),Jarque-Bera,39.16241807239456,3.133206123025062e-09,Non-normal
+ethusdt_1d_2020,ARIMA Static (train),Ljung-Box,0.1537515678951965,0.9999999790120587,White noise
+ethusdt_1d_2020,ARIMA Static (train),Jarque-Bera,871100.4057317092,0.0,Non-normal
+ethusdt_1d_2020,ARIMA Rolling (Test),Ljung-Box,13.85403348907573,0.1797543159905947,White noise
+ethusdt_1d_2020,ARIMA Rolling (Test),Jarque-Bera,0.3776147679375012,0.8279459670031878,Normal
+ethusdt_1d_2021,ARIMA Static (train),Ljung-Box,0.5977304374863665,0.9999844967055378,White noise
+ethusdt_1d_2021,ARIMA Static (train),Jarque-Bera,923947.3623736871,0.0,Non-normal
+ethusdt_1d_2021,ARIMA Rolling (Test),Ljung-Box,10.123649895535369,0.42971290655287214,White noise
+ethusdt_1d_2021,ARIMA Rolling (Test),Jarque-Bera,0.6673619823469648,0.7162822461430657,Normal
+ethusdt_1d_2022,ARIMA Static (train),Ljung-Box,0.06319217452688342,0.9999999997444037,White noise
+ethusdt_1d_2022,ARIMA Static (train),Jarque-Bera,980109.4937066844,0.0,Non-normal
+ethusdt_1d_2022,ARIMA Rolling (Test),Ljung-Box,10.754935381188115,0.37692689575586097,White noise
+ethusdt_1d_2022,ARIMA Rolling (Test),Jarque-Bera,112.53079175039119,3.6664777117949293e-25,Non-normal
+ethusdt_1d_2023,ARIMA Static (train),Ljung-Box,0.02200392458708176,0.999999999998669,White noise
+ethusdt_1d_2023,ARIMA Static (train),Jarque-Bera,1003121.5217167607,0.0,Non-normal
+ethusdt_1d_2023,ARIMA Rolling (Test),Ljung-Box,7.718874287205456,0.6562752568998041,White noise
+ethusdt_1d_2023,ARIMA Rolling (Test),Jarque-Bera,34.055245854083054,4.027145518441349e-08,Non-normal
+ethusdt_1d_2024,ARIMA Static (train),Ljung-Box,0.0807605763277636,0.9999999991349151,White noise
+ethusdt_1d_2024,ARIMA Static (train),Jarque-Bera,995067.7049311235,0.0,Non-normal
+ethusdt_1d_2024,ARIMA Rolling (Test),Ljung-Box,8.908748133086092,0.5407851161244083,White noise
+ethusdt_1d_2024,ARIMA Rolling (Test),Jarque-Bera,2.7049307572025274,0.25860192245069563,Normal
+ethusdt_1d_2025,ARIMA Static (train),Ljung-Box,0.03169300586210732,0.9999999999917822,White noise
+ethusdt_1d_2025,ARIMA Static (train),Jarque-Bera,161356.53064107962,0.0,Non-normal
+ethusdt_1d_2025,ARIMA Rolling (Test),Ljung-Box,14.36608051886902,0.1569387761805212,White noise
+ethusdt_1d_2025,ARIMA Rolling (Test),Jarque-Bera,1.7874288047634954,0.409133241406608,Normal
